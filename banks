@@ -1,0 +1,84 @@
+#include <stdio.h>
+
+int main() {
+    int n, m;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    printf("Enter number of resources: ");
+    scanf("%d", &m);
+
+    int alloc[n][m], max[n][m], need[n][m], avail[m];
+    int finish[n], safeSeq[n];
+
+    // Input Allocation matrix
+    printf("\nEnter Allocation Matrix:\n");
+    for(int i=0;i<n;i++) {
+        printf("P%d: ", i);
+        for(int j=0;j<m;j++) scanf("%d", &alloc[i][j]);
+    }
+
+    // Input Maximum matrix
+    printf("\nEnter Maximum Matrix:\n");
+    for(int i=0;i<n;i++) {
+        printf("P%d: ", i);
+        for(int j=0;j<m;j++) scanf("%d", &max[i][j]);
+    }
+
+    // Input Available resources
+    printf("\nEnter Available Resources:\n");
+    for(int j=0;j<m;j++) scanf("%d", &avail[j]);
+
+    // Calculate Need matrix = Max - Alloc
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            need[i][j] = max[i][j] - alloc[i][j];
+
+    // Initialize
+    for(int i=0;i<n;i++) finish[i]=0;
+
+    int count=0;
+    while(count < n) {
+        int found=0;
+        for(int i=0;i<n;i++) {
+            if(!finish[i]) {
+                int canAllocate=1;
+                for(int j=0;j<m;j++)
+                    if(need[i][j] > avail[j]) { canAllocate=0; break; }
+
+                if(canAllocate) {
+                    for(int k=0;k<m;k++) avail[k]+=alloc[i][k];
+                    safeSeq[count++] = i;
+                    finish[i]=1;
+                    found=1;
+                }
+            }
+        }
+        if(!found) {
+            printf("\nSystem is NOT in a safe state. Deadlock may occur.\n");
+            return 0;
+        }
+    }
+
+    printf("\nSystem is in a safe state.\nSafe sequence: ");
+    for(int i=0;i<n;i++)
+        printf("P%d%s", safeSeq[i], (i==n-1)?"":" -> ");
+
+    // Output Matrices
+    printf("\n\nAllocation\tMaximum\t\tNeed\n");
+    for(int i=0;i<n;i++) {
+        for(int j=0;j<m;j++) printf("%d ", alloc[i][j]);
+        printf("\t");
+        for(int j=0;j<m;j++) printf("%d ", max[i][j]);
+        printf("\t\t");
+        for(int j=0;j<m;j++) printf("%d ", need[i][j]);
+        printf("\n");
+    }
+
+    printf("\nAvailable Resources:\n");
+    for(int j=0;j<m;j++) printf("R%d ", j);
+    printf("\n");
+    for(int j=0;j<m;j++) printf("%d ", avail[j]);
+    printf("\n");
+
+    return 0;
+}
