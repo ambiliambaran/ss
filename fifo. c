@@ -1,0 +1,60 @@
+#include <stdio.h>
+
+int main() {
+    int i, j, n, f, page[30], frame[10], count = 0, flag, k = 0, hits = 0, faults = 0;
+
+    printf("Enter length of Reference String: ");
+    scanf("%d", &n);
+
+    printf("Enter Reference String: ");
+    for (i = 0; i < n; i++)
+        scanf("%d", &page[i]);
+
+    printf("Enter Frame width: ");
+    scanf("%d", &f);
+
+    for (i = 0; i < f; i++)
+        frame[i] = -1; // initialize frames
+
+    printf("\nImplementing FIFO:\n");
+    printf("Access\t\tIn Memory\t\tFault/Hit\n");
+
+    for (i = 0; i < n; i++) {
+        flag = 0;
+
+        // check if page already exists (HIT)
+        for (j = 0; j < f; j++) {
+            if (frame[j] == page[i]) {
+                flag = 1;
+                hits++;
+                break;
+            }
+        }
+
+        // if not present (FAULT)
+        if (flag == 0) {
+            frame[k] = page[i];
+            k = (k + 1) % f;
+            faults++;
+        }
+
+        // display
+        printf("%d\t\t", page[i]);
+        for (j = 0; j < f; j++) {
+            if (frame[j] != -1)
+                printf("%d ", frame[j]);
+            else
+                printf("* ");
+        }
+
+        if (flag == 0)
+            printf("\t\tFault\n");
+        else
+            printf("\t\tHit\n");
+    }
+
+    printf("\nTotal Hits: %d", hits);
+    printf("\nTotal Faults: %d\n", faults);
+
+    return 0;
+}
