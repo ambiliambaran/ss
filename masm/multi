@@ -1,0 +1,90 @@
+assume cs:code, ds:data
+
+data segment
+   msg1 db 0ah,0dh,"Enter no: $"
+   msg2 db 0ah,0dh,"Multiplication result is : $"
+   num1 dw 0000h
+   num2 dw 0000h
+data ends
+
+code segment
+
+   print macro msg
+      lea dx, msg
+      mov ah, 09h
+      int 21h
+   endm
+
+; Read number from user input
+read proc
+   xor ax, ax
+   push ax
+l1:
+   mov ah, 01h
+   int 21h
+   cmp al, 0dh
+   je l2
+   sub al, 30h
+   mov bx, ax
+   mov dx, 10
+   pop ax
+   mul dx
+   add ax, bx
+   push ax
+   jmp l1
+l2:
+   pop ax
+   ret
+read endp
+
+; Display the number
+display proc
+   push dx
+   mov bx, 10
+   xor cx, cx
+l3:
+   xor dx, dx
+   div bx
+   add dl, '0'
+   push dx
+   inc cx
+   cmp ax, 0
+   jnz l3
+l4:
+   pop dx
+   mov ah, 02h
+   int 21h
+   loop l4
+   pop dx
+   ret
+display endp
+
+; Multiply procedure
+multiply proc
+   mov ax, num1
+   mov bx, num2
+   mul bx         ; AX = AX * BX (AX = result)
+   call display   ; Display result
+   ret
+multiply endp
+
+start:
+   mov ax, data
+   mov ds, ax
+   
+   print msg1
+   call read
+   mov num1, ax
+
+   print msg1
+   call read
+   mov num2, ax
+
+   print msg2
+   call multiply   ; Call multiplication procedure
+
+   mov ah, 4Ch
+   int 21h
+
+code ends
+end start
